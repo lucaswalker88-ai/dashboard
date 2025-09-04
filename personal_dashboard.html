@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Personal Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .current-time {
+            color: rgba(255,255,255,0.9);
+            font-size: 1.2em;
+            font-weight: 300;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .widget {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .widget:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+        }
+
+        .widget h2 {
+            color: #4a5568;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+
+        .fitness-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 10px;
+            transition: transform 0.2s;
+        }
+
+        .stat-item:hover {
+            transform: scale(1.05);
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+
+        .input-group label {
+            min-width: 80px;
+            font-weight: 500;
+        }
+
+        input, select, button {
+            padding: 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: transform 0.2s, opacity 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            opacity: 0.9;
+        }
+
+        .tool-result {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f7fafc;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .weather-info {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .weather-icon {
+            font-size: 3em;
+        }
+
+        .weather-details h3 {
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+
+        .quick-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
+        .quick-link {
+            display: block;
+            padding: 15px;
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+
+        .quick-link:hover {
+            transform: scale(1.05);
+        }
+
+        .notes-area {
+            width: 100%;
+            min-height: 120px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .habit-list {
+            list-style: none;
+        }
+
+        .habit-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            margin-bottom: 10px;
+            background: #f7fafc;
+            border-radius: 8px;
+        }
+
+        .habit-checkbox {
+            width: 20px;
+            height: 20px;
+        }
+
+        .completed {
+            text-decoration: line-through;
+            opacity: 0.6;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>My Personal Dashboard</h1>
+            <div class="current-time" id="currentTime"></div>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Fitness Tracker -->
+            <div class="widget">
+                <h2>🏃‍♂️ Fitness Tracker</h2>
+                <div class="fitness-stats">
+                    <div class="stat-item">
+                        <span class="stat-number" id="steps">0</span>
+                        <span class="stat-label">Steps</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="calories">0</span>
+                        <span class="stat-label">Calories</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="workouts">0</span>
+                        <span class="stat-label">Workouts</span>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Steps:</label>
+                    <input type="number" id="stepsInput" placeholder="Daily steps">
+                    <button onclick="updateFitness('steps')">Update</button>
+                </div>
+                <div class="input-group">
+                    <label>Calories:</label>
+                    <input type="number" id="caloriesInput" placeholder="Calories burned">
+                    <button onclick="updateFitness('calories')">Update</button>
+                </div>
+                <div class="input-group">
+                    <button onclick="incrementWorkouts()" style="width: 100%;">Complete Workout (+1)</button>
+                </div>
+            </div>
+
+            <!-- Weather -->
+            <div class="widget">
+                <h2>🌤️ Weather</h2>
+                <div class="weather-info">
+                    <div class="weather-icon" id="weatherIcon">🌤️</div>
+                    <div class="weather-details">
+                        <h3 id="weatherTemp">Loading...</h3>
+                        <p id="weatherDesc">Fetching weather data...</p>
+                        <p id="weatherLocation">Kitchener, ON</p>
+                    </div>
+                </div>
+                <button onclick="refreshWeather()" style="margin-top: 15px; width: 100%;">Refresh Weather</button>
+            </div>
+
+            <!-- Quick Tools -->
+            <div class="widget">
+                <h2>🛠️ Quick Tools</h2>
+                <div class="input-group">
+                    <label>BMI:</label>
+                    <input type="number" id="height" placeholder="Height (cm)" style="flex: 1;">
+                    <input type="number" id="weight" placeholder="Weight (kg)" style="flex: 1;">
+                    <button onclick="calculateBMI()">Calculate</button>
+                </div>
+                <div class="input-group">
+                    <label>Timer:</label>
+                    <input type="number" id="timerMinutes" placeholder="Minutes" style="flex: 1;">
+                    <button onclick="startTimer()" id="timerBtn">Start</button>
+                    <span id="timerDisplay"></span>
+                </div>
+                <div class="tool-result" id="toolResult" style="display: none;"></div>
+            </div>
+
+            <!-- Habit Tracker -->
+            <div class="widget">
+                <h2>✅ Daily Habits</h2>
+                <ul class="habit-list" id="habitList">
+                    <li class="habit-item">
+                        <input type="checkbox" class="habit-checkbox" onchange="toggleHabit(this, 'drink-water')">
+                        <span>Drink 8 glasses of water</span>
+                    </li>
+                    <li class="habit-item">
+                        <input type="checkbox" class="habit-checkbox" onchange="toggleHabit(this, 'exercise')">
+                        <span>Exercise for 30 minutes</span>
+                    </li>
+                    <li class="habit-item">
+                        <input type="checkbox" class="habit-checkbox" onchange="toggleHabit(this, 'read')">
+                        <span>Read for 20 minutes</span>
+                    </li>
+                    <li class="habit-item">
+                        <input type="checkbox" class="habit-checkbox" onchange="toggleHabit(this, 'meditate')">
+                        <span>Meditate for 10 minutes</span>
+                    </li>
+                </ul>
+                <div style="margin-top: 15px;">
+                    <input type="text" id="newHabit" placeholder="Add new habit..." style="flex: 1; margin-right: 10px;">
+                    <button onclick="addHabit()">Add Habit</button>
+                </div>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="widget">
+                <h2>🔗 Quick Links</h2>
+                <div class="quick-links">
+                    <a href="https://gmail.com" class="quick-link" target="_blank">Gmail</a>
+                    <a href="https://calendar.google.com" class="quick-link" target="_blank">Calendar</a>
+                    <a href="https://github.com" class="quick-link" target="_blank">GitHub</a>
+                    <a href="https://youtube.com" class="quick-link" target="_blank">YouTube</a>
+                </div>
+                <div style="margin-top: 15px;">
+                    <input type="text" id="linkName" placeholder="Link name..." style="width: 48%; margin-right: 4%;">
+                    <input type="url" id="linkUrl" placeholder="https://..." style="width: 48%;">
+                    <button onclick="addQuickLink()" style="width: 100%; margin-top: 10px;">Add Link</button>
+                </div>
+            </div>
+
+            <!-- Notes -->
+            <div class="widget">
+                <h2>📝 Quick Notes</h2>
+                <textarea class="notes-area" id="notesArea" placeholder="Write your notes here..."></textarea>
+                <button onclick="saveNotes()" style="margin-top: 10px; width: 100%;">Save Notes</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize data storage
+        let dashboardData = {
+            fitness: { steps: 0, calories: 0, workouts: 0 },
+            habits: {},
+            notes: '',
+            quickLinks: []
+        };
+
+        // Load data from memory on page load
+        function loadData() {
+            const saved = window.dashboardData || dashboardData;
+            dashboardData = saved;
+            
+            // Update fitness display
+            document.getElementById('steps').textContent = dashboardData.fitness.steps;
+            document.getElementById('calories').textContent = dashboardData.fitness.calories;
+            document.getElementById('workouts').textContent = dashboardData.fitness.workouts;
+            
+            // Load notes
+            document.getElementById('notesArea').value = dashboardData.notes;
+            
+            // Load habits
+            loadHabits();
+            
+            // Load quick links
+            loadQuickLinks();
+        }
+
+        // Save data to memory
+        function saveData() {
+            window.dashboardData = dashboardData;
+        }
+
+        // Update time
+        function updateTime() {
+            const now = new Date();
+            const options = {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            };
+            document.getElementById('currentTime').textContent = now.toLocaleDateString('en-US', options);
+        }
+
+        // Fitness functions
+        function updateFitness(type) {
+            const inputId = type + 'Input';
+            const value = parseInt(document.getElementById(inputId).value) || 0;
+            if (value > 0) {
+                dashboardData.fitness[type] += value;
+                document.getElementById(type).textContent = dashboardData.fitness[type];
+                document.getElementById(inputId).value = '';
+                saveData();
+            }
+        }
+
+        function incrementWorkouts() {
+            dashboardData.fitness.workouts++;
+            document.getElementById('workouts').textContent = dashboardData.fitness.workouts;
+            saveData();
+        }
+
+        // Weather function (mock implementation)
+        function refreshWeather() {
+            const temps = [18, 22, 25, 19, 21, 16, 20];
+            const conditions = ['☀️', '🌤️', '⛅', '🌧️', '🌦️'];
+            const descs = ['Sunny', 'Partly Cloudy', 'Cloudy', 'Rainy', 'Showers'];
+            
+            const temp = temps[Math.floor(Math.random() * temps.length)];
+            const conditionIndex = Math.floor(Math.random() * conditions.length);
+            
+            document.getElementById('weatherTemp').textContent = `${temp}°C`;
+            document.getElementById('weatherIcon').textContent = conditions[conditionIndex];
+            document.getElementById('weatherDesc').textContent = descs[conditionIndex];
+        }
+
+        // Tool functions
+        function calculateBMI() {
+            const height = parseFloat(document.getElementById('height').value);
+            const weight = parseFloat(document.getElementById('weight').value);
+            
+            if (height && weight && height > 0 && weight > 0) {
+                const bmi = (weight / ((height / 100) ** 2)).toFixed(1);
+                let category = '';
+                
+                if (bmi < 18.5) category = 'Underweight';
+                else if (bmi < 25) category = 'Normal weight';
+                else if (bmi < 30) category = 'Overweight';
+                else category = 'Obese';
+                
+                document.getElementById('toolResult').style.display = 'block';
+                document.getElementById('toolResult').innerHTML = `<strong>BMI: ${bmi}</strong><br>Category: ${category}`;
+            }
+        }
+
+        // Timer functionality
+        let timerInterval;
+        function startTimer() {
+            const minutes = parseInt(document.getElementById('timerMinutes').value);
+            if (!minutes || minutes <= 0) return;
+            
+            let totalSeconds = minutes * 60;
+            const btn = document.getElementById('timerBtn');
+            const display = document.getElementById('timerDisplay');
+            
+            if (btn.textContent === 'Stop') {
+                clearInterval(timerInterval);
+                btn.textContent = 'Start';
+                display.textContent = '';
+                return;
+            }
+            
+            btn.textContent = 'Stop';
+            
+            timerInterval = setInterval(() => {
+                const mins = Math.floor(totalSeconds / 60);
+                const secs = totalSeconds % 60;
+                display.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+                
+                if (totalSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    btn.textContent = 'Start';
+                    display.textContent = '⏰ Time\'s up!';
+                    alert('Timer finished!');
+                }
+                totalSeconds--;
+            }, 1000);
+        }
+
+        // Habit functions
+        function toggleHabit(checkbox, habitId) {
+            const label = checkbox.nextElementSibling;
+            if (checkbox.checked) {
+                label.classList.add('completed');
+                dashboardData.habits[habitId] = true;
+            } else {
+                label.classList.remove('completed');
+                dashboardData.habits[habitId] = false;
+            }
+            saveData();
+        }
+
+        function loadHabits() {
+            const checkboxes = document.querySelectorAll('.habit-checkbox');
+            checkboxes.forEach((checkbox, index) => {
+                const habitId = ['drink-water', 'exercise', 'read', 'meditate'][index];
+                if (dashboardData.habits[habitId]) {
+                    checkbox.checked = true;
+                    checkbox.nextElementSibling.classList.add('completed');
+                }
+            });
+        }
+
+        function addHabit() {
+            const input = document.getElementById('newHabit');
+            const habitText = input.value.trim();
+            if (!habitText) return;
+            
+            const habitList = document.getElementById('habitList');
+            const li = document.createElement('li');
+            li.className = 'habit-item';
+            li.innerHTML = `
+                <input type="checkbox" class="habit-checkbox" onchange="toggleHabit(this, 'custom-${Date.now()}')">
+                <span>${habitText}</span>
+            `;
+            
+            habitList.appendChild(li);
+            input.value = '';
+        }
+
+        // Quick Links functions
+        function addQuickLink() {
+            const name = document.getElementById('linkName').value.trim();
+            const url = document.getElementById('linkUrl').value.trim();
+            
+            if (!name || !url) return;
+            
+            dashboardData.quickLinks.push({ name, url });
+            document.getElementById('linkName').value = '';
+            document.getElementById('linkUrl').value = '';
+            loadQuickLinks();
+            saveData();
+        }
+
+        function loadQuickLinks() {
+            const container = document.querySelector('.quick-links');
+            // Keep default links and add custom ones
+            const defaultLinks = container.innerHTML;
+            
+            dashboardData.quickLinks.forEach(link => {
+                const a = document.createElement('a');
+                a.href = link.url;
+                a.className = 'quick-link';
+                a.target = '_blank';
+                a.textContent = link.name;
+                container.appendChild(a);
+            });
+        }
+
+        // Notes function
+        function saveNotes() {
+            dashboardData.notes = document.getElementById('notesArea').value;
+            saveData();
+            
+            // Visual feedback
+            const btn = document.querySelector('#notesArea').nextElementSibling;
+            const originalText = btn.textContent;
+            btn.textContent = 'Saved!';
+            setTimeout(() => {
+                btn.textContent = originalText;
+            }, 1500);
+        }
+
+        // Initialize everything
+        document.addEventListener('DOMContentLoaded', function() {
+            updateTime();
+            setInterval(updateTime, 60000); // Update every minute
+            refreshWeather();
+            loadData();
+        });
+    </script>
+</body>
+</html>
